@@ -62,8 +62,9 @@ int vlm_require(lua_State *L) {
         luaL_error(L, "Module not found: [%s]", module_name);
     }
 
-    sprintf(vlm_dir, "%s/%s/%s.luau", vlm_dir, module_name, module_name);
-    FILE *fd = fopen(vlm_dir, "r");
+    char module_file[512] = {0};
+    sprintf(module_file, "%s/%s/%s.luau", vlm_dir, module_name, module_name);
+    FILE *fd = fopen(module_file, "r");
     if(!fd) luaL_error(L, "Module not found: [%s]", module_name);
     fseek(fd, 0, SEEK_END);
     int fsize = ftell(fd);
