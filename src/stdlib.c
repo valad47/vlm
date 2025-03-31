@@ -24,14 +24,27 @@ void load_so(lua_State *L, int idx, const char* module_name) {
         return;
     }
 
+    char *prefix = "";
+
+    lua_getfield(L, idx, "SO_PREFIX");
+    if(lua_isstring(L, -1)) {
+        prefix = lua_tostring(L, -1);
+    }
+    lua_pop(L, 1);
+
     lua_pushnil(L);
     while(lua_next(L, idx) != 0) {
-        if(!lua_isstring(L, -2)) {lua_pop(L, 1); continue;}
-        const char *fname = lua_tostring(L, -2);
+        if(!lua_isstring(L, -2) || !lua_isfunction(L, -1)) {lua_pop(L, 1); continue;}
+        char *lname = lua_tostring(L, -2);
+        char fname[256] = {0};
+        sprintf(fname, "%s%s",
+                prefix,
+                lname
+        );
         lua_CFunction mfunc = dlsym(handle, fname);
         if(!mfunc) {lua_pop(L, 1); continue;}
         lua_pushcfunction(L, mfunc, fname);
-        lua_setfield(L, idx, fname);
+        lua_setfield(L, idx, lname);
         lua_pop(L, 1);
     }
 }
