@@ -15,7 +15,8 @@ void vlm_run(int argc, char **argv) {
 
     FILE *fd = fopen(argv[2], "r");
     if(!fd){
-        fprintf(stderr, "Cannot open file");
+        fprintf(stderr, "Cannot open file [%s]\n", argv[2]);
+        exit(1);
     }
     fseek(fd, 0, SEEK_END);
     int fsize = ftell(fd);
