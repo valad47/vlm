@@ -24,7 +24,7 @@ foreach(target Luau.VM Luau.Compiler)
   set_target_properties(${target} PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${defs}")
 endforeach()
 
-add_executable(vlm src/main.c src/runtime.c src/stdlib.c)
-set_property(TARGET vlm PROPERTY CMAKE_C_STANDART C23)
+add_executable(vlm src/main.c src/runtime.c src/stdlib.c src/package.c)
+set_property(TARGET vlm PROPERTY C_STANDART 23)
 
 target_link_libraries(vlm Luau.Compiler Luau.VM)

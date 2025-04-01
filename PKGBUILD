@@ -1,13 +1,13 @@
 # Maintainer: valad47 <valad.racz@gmail.com>
 pkgname=vlm
-pkgver=0.1
+pkgver=0.2
 pkgrel=1
 pkgdesc="Luau package manager and runtime"
 arch=('x86_64')
 url="https://github.com/valad47/vlm"
 license=('unknown')
-depends=(gcc-libs glibc)
-makedepends=(cmake git)
+depends=(gcc-libs glibc tar gzip)
+makedepends=(cmake git clang)
 source=("git+https://github.com/valad47/vlm.git")
 sha256sums=('SKIP')
 
@@ -20,7 +20,8 @@ build() {
     cmake -B build \
           -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
           -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=/usr
+          -DCMAKE_INSTALL_PREFIX=/usr \
+          -DCMAKE_C_COMPILER=clang
     cmake --build build -j4
 
     mkdir -p lib/vlm

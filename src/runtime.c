@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-lua_State *loadstring(lua_State* L, char *str, size_t size, char *chunkname) {
+lua_State *loadstring(lua_State* L, const char *str, size_t size, const char *chunkname) {
     size_t bytecode_size;
     char *bytecode = luau_compile(str, size, NULL, &bytecode_size);
 

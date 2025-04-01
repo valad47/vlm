@@ -6,6 +6,7 @@
 #include "lua.h"
 #include "lualib.h"
 #include "vlmstdlib.h"
+#include "package.h"
 
 void vlm_run(int argc, char **argv) {
     if(argc < 3) {
@@ -47,6 +48,7 @@ const char help_message[] =
     "Commands:\n"
     "\trun\t- run script\n"
     "\thelp\t- show this message\n"
+    "\tbuild\t- build a .vlp package\n"
 ;
 
 int main(int argc, char **argv) {
@@ -61,6 +63,10 @@ int main(int argc, char **argv) {
     }
     else if(!strcmp("run", argv[1])) {
         vlm_run(argc, argv);
+        return 0;
+    }
+    else if(!strcmp("build", argv[1])) {
+        builder(argc, argv);
         return 0;
     }
 

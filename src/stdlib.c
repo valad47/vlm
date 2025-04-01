@@ -53,6 +53,7 @@ int vlm_require(lua_State *L) {
     const char *module_name = luaL_checkstring(L, 1);
     char module_file[512] = {0};
     FILE *fd = 0;
+    int vlb = 0;
 
     //First trying to search for a file in local dir
     sprintf(module_file, "%s.luau", module_name);
@@ -75,11 +76,20 @@ int vlm_require(lua_State *L) {
             luaL_error(L, "Module not found: [%s]", module_name);
         }
 
+        //First we check for .vlb luau bytecode
+        sprintf(module_file, "%s/%s/%s.vlb", vlm_dir, module_name, module_name);
+        fd = fopen(module_file, "r");
+        if(fd) {
+            vlb = 1;
+            goto next;
+        }
+
         sprintf(module_file, "%s/%s/%s.luau", vlm_dir, module_name, module_name);
         fd = fopen(module_file, "r");
         if(!fd) luaL_error(L, "Module not found: [%s]", module_name);
     }
 
+next:
     fseek(fd, 0, SEEK_END);
     int fsize = ftell(fd);
     fseek(fd, 0, SEEK_SET);
@@ -87,8 +97,15 @@ int vlm_require(lua_State *L) {
     char *buffer = malloc(fsize+16);
     memset(buffer, 0, fsize+16);
     fread(buffer, fsize+16, 1, fd);
+
     size_t bytecode_size;
-    char *bytecode = luau_compile(buffer, strlen(buffer), NULL, &bytecode_size);
+    char *bytecode;
+    if(vlb) {
+        bytecode_size = fsize;
+        bytecode = buffer;
+    } else {
+        bytecode = luau_compile(buffer, strlen(buffer), NULL, &bytecode_size);
+    }
 
     lua_State *GL = lua_mainthread(L);
     lua_State *ML = lua_newthread(GL);
@@ -114,13 +131,14 @@ int vlm_require(lua_State *L) {
         lua_setfield(ML, 1, "LOAD_SO");
 
         load_so(ML, 1, module_name);
-    }
+    } else
+        lua_pop(ML, 1);
 
     lua_xmove(ML, L, 1);
 
     fclose(fd);
     free(buffer);
-    free(bytecode);
+    if(!vlb) free(bytecode);
 
     return 1;
 }
