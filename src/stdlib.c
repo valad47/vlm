@@ -24,7 +24,7 @@ void load_so(lua_State *L, int idx, const char* module_name) {
         return;
     }
 
-    char *prefix = "";
+    const char *prefix = "";
 
     lua_getfield(L, idx, "SO_PREFIX");
     if(lua_isstring(L, -1)) {
@@ -35,7 +35,7 @@ void load_so(lua_State *L, int idx, const char* module_name) {
     lua_pushnil(L);
     while(lua_next(L, idx) != 0) {
         if(!lua_isstring(L, -2) || !lua_isfunction(L, -1)) {lua_pop(L, 1); continue;}
-        char *lname = lua_tostring(L, -2);
+        const char *lname = lua_tostring(L, -2);
         char fname[256] = {0};
         sprintf(fname, "%s%s",
                 prefix,
@@ -51,21 +51,35 @@ void load_so(lua_State *L, int idx, const char* module_name) {
 
 int vlm_require(lua_State *L) {
     const char *module_name = luaL_checkstring(L, 1);
+    char module_file[512] = {0};
+    FILE *fd = 0;
 
-    char *home = getenv("HOME");
-    char vlm_dir[512] = {0};
-    sprintf(vlm_dir, "%s/%s", home, VLM_DIR);
+    //First trying to search for a file in local dir
+    sprintf(module_file, "%s.luau", module_name);
 
-    struct stat st = {0};
-    if(stat(vlm_dir, &st) == -1) {
-        mkdir(vlm_dir, 00740);
-        luaL_error(L, "Module not found: [%s]", module_name);
+    //Checking if it's not the same file we're running
+    struct lua_Debug dinfo = {0};
+    lua_getinfo(L, 1, "s", &dinfo);
+    if(strcmp(dinfo.source, module_file))
+        fd = fopen(module_file, "r");
+
+    //If file was not found, search in vlm modules folder
+    if(!fd) {
+        char *home = getenv("HOME");
+        char vlm_dir[512] = {0};
+        sprintf(vlm_dir, "%s/%s", home, VLM_DIR);
+
+        struct stat st = {0};
+        if(stat(vlm_dir, &st) == -1) {
+            mkdir(vlm_dir, 00740);
+            luaL_error(L, "Module not found: [%s]", module_name);
+        }
+
+        sprintf(module_file, "%s/%s/%s.luau", vlm_dir, module_name, module_name);
+        fd = fopen(module_file, "r");
+        if(!fd) luaL_error(L, "Module not found: [%s]", module_name);
     }
 
-    char module_file[512] = {0};
-    sprintf(module_file, "%s/%s/%s.luau", vlm_dir, module_name, module_name);
-    FILE *fd = fopen(module_file, "r");
-    if(!fd) luaL_error(L, "Module not found: [%s]", module_name);
     fseek(fd, 0, SEEK_END);
     int fsize = ftell(fd);
     fseek(fd, 0, SEEK_SET);
@@ -103,8 +117,11 @@ int vlm_require(lua_State *L) {
     }
 
     lua_xmove(ML, L, 1);
+
+    fclose(fd);
     free(buffer);
     free(bytecode);
+
     return 1;
 }
 
