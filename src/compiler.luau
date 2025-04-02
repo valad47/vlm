@@ -44,7 +44,7 @@ execute(
 )
 execute(
     "gzip",
-    "-S",
+    "-fS",
     ".vlp",
     `{pkgname}`
 )
