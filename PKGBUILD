@@ -18,10 +18,10 @@ prepare() {
 build() {
 	cd "$pkgname"
     cmake -B build \
-          -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=/usr \
-          -DCMAKE_C_COMPILER=clang
+    	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    	-DCMAKE_BUILD_TYPE=Release \
+    	-DCMAKE_C_COMPILER=clang
+    
     cmake --build build -j4
 
     mkdir -p lib/vlm

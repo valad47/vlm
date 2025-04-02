@@ -49,6 +49,7 @@ const char help_message[] =
     "\trun\t- run script\n"
     "\thelp\t- show this message\n"
     "\tbuild\t- build a .vlp package\n"
+    "\tinstall\t- install a .vlp package\n"
 ;
 
 int main(int argc, char **argv) {
@@ -67,6 +68,10 @@ int main(int argc, char **argv) {
     }
     else if(!strcmp("build", argv[1])) {
         builder(argc, argv);
+        return 0;
+    }
+    else if(!strcmp("install", argv[1])) {
+        installer(argc, argv);
         return 0;
     }
 

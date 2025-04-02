@@ -135,3 +135,45 @@ void builder(int argc, char **argv) {
     lua_close(L);
     exit(0);
 }
+
+void installer(int argc, char **argv) {
+    if(argc < 3) {
+        fprintf(stderr, "No file provided\n");
+        exit(1);
+    }
+
+    const char installer[] = {
+        #embed "installer.luau"
+        ,'\0'
+    };
+
+    lua_State *L = luaL_newstate();
+
+    luaL_Reg reg[] = {
+        {"execute", vlm_execute},
+        {"mkdir", vlm_mkdir},
+        {"fwrite", vlm_write},
+
+        {NULL, NULL}
+    };
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+    luaL_register(L, NULL, reg);
+    lua_pop(L, 1);
+    luaL_openlibs(L);
+    vlm_stdinit(L);
+
+    lua_pushstring(L, argv[2]);
+    lua_setglobal(L, "filename");
+
+    lua_pushstring(L, getenv("HOME"));
+    lua_setglobal(L, "home");
+
+    lua_State *ML = loadstring(L, installer, strlen(installer), "vlm_installer");
+
+    if(lua_resume(ML, L, 0) != LUA_OK) {
+        fprintf(stderr, "Installer failure:\n\t%s", lua_tostring(ML, -1));
+        exit(1);
+    }
+    lua_close(L);
+    exit(0);
+}
