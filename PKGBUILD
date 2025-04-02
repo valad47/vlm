@@ -23,20 +23,6 @@ build() {
     	-DCMAKE_C_COMPILER=clang
     
     cmake --build build -j4
-
-    mkdir -p lib/vlm
-    mkdir -p include/vlm
-
-    cd build/_deps/luau-build/
-    cp libLuau.VM.a \
-       libLuau.Compiler.a \
-       libLuau.Ast.a \
-       "$srcdir/$pkgname/lib/vlm/"
-
-    cd ../luau-src/
-    cp VM/include/*.h \
-       Compiler/include/luacode.h \
-       "$srcdir/$pkgname/include/vlm/"
 }
 
 check() {
@@ -46,6 +32,5 @@ check() {
 package() {
 	cd "$pkgname"
 	install -Dm0755 -t "$pkgdir/usr/bin/" build/vlm
-    install -Dm0644 -t "$pkgdir/usr/lib/vlm/" lib/vlm/*
-    install -Dm0644 -t "$pkgdir/usr/include/vlm/" include/vlm/*
+    install -Dm0644 -t "$pkgdir/usr/lib/" build/libvlmruntime.so 
 }

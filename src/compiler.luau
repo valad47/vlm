@@ -15,13 +15,11 @@ if build_file.c_files then
    execute(
        compiler,
        "-shared",
-       "-I/usr/include/vlm",
-       "/usr/lib/vlm/libLuau.Ast.a",
-       "/usr/lib/vlm/libLuau.Compiler.a",
-       "/usr/lib/vlm/libLuau.VM.a",
-       "-O2",
        "-o",
        executable,
+       "-I/usr/include/vlm",
+       "-lvlmruntime",
+       "-O2",
        (if build_file.c_args then table.unpack(build_file.c_args) else ""),
        table.unpack(build_file.c_files)
    )

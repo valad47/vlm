@@ -26,5 +26,10 @@ endforeach()
 
 add_executable(vlm src/main.c src/runtime.c src/stdlib.c src/package.c)
 set_property(TARGET vlm PROPERTY C_STANDART 23)
-
 target_link_libraries(vlm Luau.Compiler Luau.VM)
+
+add_library(vlmruntime SHARED src/runtime.c)
+target_compile_options(Luau.Compiler PUBLIC -fPIC)
+target_compile_options(Luau.VM PUBLIC -fPIC)
+target_compile_options(Luau.Ast PUBLIC -fPIC)
+target_link_libraries(vlmruntime Luau.Compiler Luau.VM Luau.Ast)
