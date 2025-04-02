@@ -22,7 +22,7 @@ if build_file.c_files then
        "-O2",
        "-o",
        executable,
-       (if build_file.c_args then table.unpack(build.c_args) else ""),
+       (if build_file.c_args then table.unpack(build_file.c_args) else ""),
        table.unpack(build_file.c_files)
    )
    execute("strip", executable)
