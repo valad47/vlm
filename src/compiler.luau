@@ -26,27 +26,33 @@ if build_file.c_files then
    execute("strip", executable)
 end
 for i, v in build_file.luau_files do
-    luaucompile(v, "build/"..(string.split(v, ".luau")[1])..".vlb")
+    local out = string.split(v, "/")
+    out = string.split(out[#out], ".lua")
+    out = out[1]
+    luaucompile(v, "build/"..
+        out..
+        ".vlb")
 end
 
 fwrite(
     "build/pkginfo.luau",
     `return \{\n`..
     `    pkgname = "{pkgname}",\n`..
+    `    pkgver = "{build_file.pkgver}"\n`..
     `}`
 )
 
 execute(
     "tar",
     "-cf",
-    `{pkgname}`,
+    `{pkgname}-{build_file.pkgver}`,
     "build"
 )
 execute(
     "gzip",
     "-fS",
     ".vlp",
-    `{pkgname}`
+    `{pkgname}-{build_file.pkgver}`
 )
 
 print("Succesfully builded package")

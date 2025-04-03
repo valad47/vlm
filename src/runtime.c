@@ -10,12 +10,13 @@ lua_State *loadstring(lua_State* L, const char *str, size_t size, const char *ch
 
     lua_State* ML = lua_newthread(L);
     int result = luau_load(ML, chunkname ? chunkname : "vlm", bytecode, bytecode_size, 0);
-    luaL_sandboxthread(ML);
 
     if(result != LUA_OK) {
-        printf("Failed to load bytecode:\n%s\n", lua_tostring(L, -1));
-        return NULL;
+        fprintf(stderr, "Failed to load bytecode:\n%s\n", lua_tostring(ML, -1));
+        exit(1);
     }
+
+    luaL_sandboxthread(ML);
 
     free(bytecode);
     return ML;

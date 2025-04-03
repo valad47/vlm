@@ -1,6 +1,6 @@
 # Maintainer: valad47 <valad.racz@gmail.com>
 pkgname=vlm
-pkgver=0.2
+pkgver=0.3
 pkgrel=1
 pkgdesc="Luau package manager and runtime"
 arch=('x86_64')
@@ -23,6 +23,12 @@ build() {
     	-DCMAKE_C_COMPILER=clang
     
     cmake --build build -j4
+
+    mkdir -p include/vlm
+
+    cp build/_deps/luau-src/VM/include/*.h \
+       build/_deps/luau-src/Compiler/include/luacode.h \
+       "$srcdir/$pkgname/include/vlm/"
 }
 
 check() {
@@ -32,5 +38,6 @@ check() {
 package() {
 	cd "$pkgname"
 	install -Dm0755 -t "$pkgdir/usr/bin/" build/vlm
-    install -Dm0644 -t "$pkgdir/usr/lib/" build/libvlmruntime.so 
+    install -Dm0755 -t "$pkgdir/usr/lib/" build/libvlmruntime.so 
+    install -Dm0644 -t "$pkgdir/usr/include/vlm/" include/vlm/*
 }
