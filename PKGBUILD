@@ -1,7 +1,7 @@
 # Maintainer: valad47 <valad.racz@gmail.com>
 pkgname=vlm
 pkgver=0.3
-pkgrel=1
+pkgrel=2
 pkgdesc="Luau package manager and runtime"
 arch=('x86_64')
 url="https://github.com/valad47/vlm"
@@ -18,7 +18,6 @@ prepare() {
 build() {
 	cd "$pkgname"
     cmake -B build \
-    	-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     	-DCMAKE_BUILD_TYPE=Release \
     	-DCMAKE_C_COMPILER=clang
     
