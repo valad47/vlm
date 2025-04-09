@@ -3,7 +3,7 @@ local _, err = pcall(function()
     build_file = require("build")
 end)
 if err then
-   error("Currend directory does not contains [build.luau]")
+   error(`Currend directory does not contains [build.luau], or error:\n{err}`)
 end
 
 local pkgname = build_file.pkgname
@@ -18,8 +18,10 @@ if build_file.c_files then
        "-o",
        executable,
        "-I/usr/include/vlm",
+       "-ggdb",
        "-lvlmruntime",
        "-O2",
+       "-fPIC",
        (if build_file.c_args then table.unpack(build_file.c_args) else ""),
        table.unpack(build_file.c_files)
    )

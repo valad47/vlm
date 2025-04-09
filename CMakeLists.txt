@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(Luau)
 
 # Making possible to use Luau API in C
 # https://github.com/luau-lang/luau/pull/933#issuecomment-2152968746
-foreach(target Luau.VM Luau.Compiler)
+foreach(target Luau.VM Luau.Compiler Luau.CodeGen)
   get_target_property(defs ${target} INTERFACE_COMPILE_DEFINITIONS)
   list(FILTER defs EXCLUDE REGEX [[LUA.*_API]])
   set_target_properties(${target} PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${defs}")

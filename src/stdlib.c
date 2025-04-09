@@ -122,6 +122,8 @@ next:
             else if (!lua_istable(ML, -1) && !lua_isfunction(ML, -1))
                 luaL_error(L, "module must return a table or function");
         }
+    } else {
+        luaL_error(L, "Module contains an error:\n\t%s\n", lua_tostring(ML, -1));
     }
 
     lua_getfield(ML, 1, "LOAD_SO");

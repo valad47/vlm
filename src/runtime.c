@@ -6,7 +6,11 @@
 
 lua_State *loadstring(lua_State* L, const char *str, size_t size, const char *chunkname) {
     size_t bytecode_size;
-    char *bytecode = luau_compile(str, size, NULL, &bytecode_size);
+
+    char *bytecode = luau_compile(str, size, &(struct lua_CompileOptions){
+        .optimizationLevel = 1,
+        .debugLevel = 1
+    }, &bytecode_size);
 
     lua_State* ML = lua_newthread(L);
     int result = luau_load(ML, chunkname ? chunkname : "vlm", bytecode, bytecode_size, 0);
