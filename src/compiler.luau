@@ -12,6 +12,9 @@ local compiler = build_file.compiler or "clang"
 mkdir("build")
 if build_file.c_files then
    local executable = "build/"..pkgname..".so";
+   if build_file.c_args then
+       table.move(build_file.c_args, 1, #build_file.c_args, #build_file.c_files + 1, build_file.c_files)
+   end
    execute(
        compiler,
        "-shared",
@@ -22,7 +25,6 @@ if build_file.c_files then
        "-lvlmruntime",
        "-O2",
        "-fPIC",
-       (if build_file.c_args then table.unpack(build_file.c_args) else ""),
        table.unpack(build_file.c_files)
    )
    execute("strip", executable)
