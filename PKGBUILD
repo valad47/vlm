@@ -21,7 +21,7 @@ build() {
     	-DCMAKE_BUILD_TYPE=Release \
     	-DCMAKE_C_COMPILER=clang
     
-    cmake --build build -j4
+    cmake --build build -j4 -t vlm vlmruntime
 
     mkdir -p include/vlm
 
