@@ -113,4 +113,9 @@ local foo = require("foo")
 foo.bar("bar")
 ```
 
+And then run it using `vlm`:
+```sh
+vlm run foo.luau
+```
+
 And that's all! Simple enough
