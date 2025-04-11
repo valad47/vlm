@@ -1,7 +1,7 @@
 # Maintainer: valad47 <valad.racz@gmail.com>
 pkgname=vlm
-pkgver=0.3
-pkgrel=2
+pkgver=0.4
+pkgrel=1
 pkgdesc="Luau package manager and runtime"
 arch=('x86_64')
 url="https://github.com/valad47/vlm"
@@ -39,4 +39,5 @@ package() {
 	install -Dm0755 -t "$pkgdir/usr/bin/" build/vlm
     install -Dm0755 -t "$pkgdir/usr/lib/" build/libvlmruntime.so 
     install -Dm0644 -t "$pkgdir/usr/include/vlm/" include/vlm/*
+    install -Dm0644 -t "$pkgdir/etc/" vlm-remotes.luau
 }
