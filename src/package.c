@@ -66,6 +66,16 @@ int vlm_mkdir(lua_State *L) {
     return 0;
 }
 
+int vlm_pwd(lua_State *L) {
+    lua_pushstring(L, getenv("PWD"));
+    return 1;
+}
+
+int vlm_cd(lua_State *L) {
+    chdir(luaL_checkstring(L, 1));
+    return 0;
+}
+
 int vlm_luaucompile(lua_State *L) {
     const char *input = luaL_checkstring(L, 1);
     const char *output = luaL_checkstring(L, 2);
@@ -117,6 +127,8 @@ void builder(int argc, char **argv) {
         {"luaucompile", vlm_luaucompile},
         {"mkdir", vlm_mkdir},
         {"fwrite", vlm_write},
+        {"pwd", vlm_pwd},
+        {"cd", vlm_cd},
 
         {NULL, NULL}
     };
@@ -153,6 +165,8 @@ void installer(int argc, char **argv) {
         {"execute", vlm_execute},
         {"mkdir", vlm_mkdir},
         {"fwrite", vlm_write},
+        {"pwd", vlm_pwd},
+        {"cd", vlm_cd},
 
         {NULL, NULL}
     };

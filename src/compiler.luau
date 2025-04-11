@@ -38,13 +38,24 @@ for i, v in build_file.luau_files do
         ".vlb")
 end
 
-fwrite(
-    "build/pkginfo.luau",
+local pkginfo =
     `return \{\n`..
     `    pkgname = "{pkgname}",\n`..
-    `    pkgver = "{build_file.pkgver}"\n`..
-    `}`
-)
+    `    pkgver = "{build_file.pkgver}",\n`..
+    `    dependency = \{\n`
+
+if build_file.dependency then
+    for i,v in build_file.dependency do
+       pkginfo = pkginfo..`        "{v}",\n`
+    end
+end
+
+pkginfo =
+    pkginfo..
+    "    }\n"..
+    "}"
+
+fwrite("build/pkginfo.luau", pkginfo)
 
 execute(
     "tar",
@@ -59,4 +70,4 @@ execute(
     `{pkgname}-{build_file.pkgver}`
 )
 
-print("Succesfully builded package")
+print(`Succesfully builded package [{pkgname}]`)
