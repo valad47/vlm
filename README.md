@@ -3,16 +3,20 @@ vlm
 
 vlm (valad Luau Manager) is a package manager and runtime for [Luau](https://luau.org) language.
 
-At this point it works only for x86_64 Linux
+At this point it works only for Linux
 
 # Building
 
 To build executable, use this command:
 
 ```sh
-cmake -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
-cmake --build build
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang
+cmake --build build -j4 -t vlm vlmruntime
 ```
+
+# Documentation
+
+Read vlm ducumentation in [DOCUMENTATION](https://github.com/valad47/vlm/blob/main/DOCUMENTATION.md)
 
 # Conception
 
