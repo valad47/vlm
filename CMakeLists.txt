@@ -8,7 +8,7 @@ option(LUAU_BUILD_CLI "Build CLI" OFF)
 option(LUAU_BUILD_TESTS "Build tests" OFF)
 option(LUAU_EXTERN_C "Use extern C for all APIs" ON)
 
-set(LUAU_VERSION 0.668)
+set(LUAU_VERSION 0.670)
 FetchContent_Declare(
     Luau
     URL https://github.com/luau-lang/luau/archive/refs/tags/${LUAU_VERSION}.tar.gz
