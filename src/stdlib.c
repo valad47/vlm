@@ -121,7 +121,9 @@ next:
                 luaL_error(L, "module must return a value");
             else if (!lua_istable(ML, -1) && !lua_isfunction(ML, -1))
                 luaL_error(L, "module must return a table or function");
-        }
+       } else {
+           luaL_error(L, "[%d]Module contains an error:\n\t%s\n", status, lua_tostring(ML, -1));
+       }
     } else {
         luaL_error(L, "Module contains an error:\n\t%s\n", lua_tostring(ML, -1));
     }
@@ -145,14 +147,46 @@ next:
     return 1;
 }
 
+int vlm_require_shared(lua_State *L) {
+    lua_State* GL = lua_mainthread(L);
+    const char *module_name = luaL_checkstring(L, 1);
+
+    lua_getglobal(GL, "__MODULES");
+    if(!lua_istable(GL, -1)) {
+        lua_pop(GL, 1);
+        lua_createtable(GL, 0, 1);
+        lua_pushvalue(GL, -1);
+        lua_setglobal(GL, "__MODULES");
+    }
+
+    lua_getfield(GL, -1, luaL_checkstring(L, 1));
+    if(!lua_istable(GL, -1)) {
+        lua_pop(GL, 1);
+        vlm_require(L);
+        lua_pushvalue(L, -1);
+        lua_xmove(L, GL, 1);
+        lua_setfield(GL, -2, module_name);
+        lua_pop(GL, 1);
+        return 1;
+    }
+    lua_xmove(GL, L, 1);
+    lua_pop(GL, 1);
+
+    return 1;
+}
+
 int vlm_stdinit(lua_State *L) {
     static const luaL_Reg reg[] = {
         {"require", vlm_require},
+        {"require_shared", vlm_require_shared},
         {NULL, NULL}
     };
     lua_pushvalue(L, LUA_GLOBALSINDEX);
     luaL_register(L, NULL, reg);
     lua_pop(L, 1);
+
+    lua_newtable(L);
+    lua_setglobal(L, "__MODULES");
 
     return 0;
 }
