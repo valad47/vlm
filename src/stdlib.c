@@ -128,6 +128,7 @@ next:
         luaL_error(L, "Module contains an error:\n\t%s\n", lua_tostring(ML, -1));
     }
 
+    if(lua_istable(ML, 1)) {
     lua_getfield(ML, 1, "LOAD_SO");
     if(lua_toboolean(ML, -1)) {
         lua_pop(ML, 1);
@@ -137,6 +138,7 @@ next:
         load_so(ML, 1, module_name);
     } else
         lua_pop(ML, 1);
+    }
 
     lua_xmove(ML, L, 1);
 
