@@ -1,6 +1,6 @@
 # Maintainer: valad47 <valad.racz@gmail.com>
 pkgname=vlm
-pkgver=0.5
+pkgver=0.6
 pkgrel=1
 pkgdesc="Luau package manager and runtime"
 arch=('x86_64')
