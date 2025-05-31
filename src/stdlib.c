@@ -113,7 +113,7 @@ next:
 
     luaL_sandboxthread(ML);
 
-    if(luau_load(ML, module_name, bytecode, bytecode_size, 0) == 0) {
+    if(luau_load(ML, module_file, bytecode, bytecode_size, 0) == 0) {
         int status = lua_resume(ML, NULL, 0);
 
         if (status == 0) {
