@@ -49,21 +49,49 @@ void load_so(lua_State *L, int idx, const char* module_name) {
     }
 }
 
+char *strshrink(const char *str, char target) {
+    size_t size = strlen(str);
+    char *copy = malloc(size+1);
+    strcpy(copy, str);
+
+    int last_char = 0;
+
+    for(char *s = copy; *s != 0; s++) {
+        if(*s == target)
+            last_char = s - copy;
+    }
+
+    if (last_char == 0) {
+        free(copy);
+        return NULL;
+    }
+    copy[last_char+1] = 0;
+    return copy;
+}
+
 int vlm_require(lua_State *L) {
     const char *module_name = luaL_checkstring(L, 1);
     char module_file[512] = {0};
     FILE *fd = 0;
     int vlb = 0;
 
-    //First trying to search for a file in local dir
-    sprintf(module_file, "%s.luau", module_name);
-
-    //Checking if it's not the same file we're running
     struct lua_Debug dinfo = {0};
     lua_getinfo(L, 1, "s", &dinfo);
+
+    //First trying to search for a file relative to current file position
+    char *spath = strshrink(dinfo.source, '/');
+    sprintf(module_file, "%s%s.luau", spath == NULL ? "":spath, module_name);
+
+
+    //Checking if it's not the same file we're running
     if(strcmp(dinfo.source, module_file))
         fd = fopen(module_file, "r");
 
+    if(!fd) {
+        sprintf(module_file, "%s%s.vlb", spath == NULL ? "":spath, module_name);
+        fd = fopen(module_file, "r");
+    }
+    free(spath);
     //If file was not found, search in vlm modules folder
     if(!fd) {
         char *home = getenv("HOME");
