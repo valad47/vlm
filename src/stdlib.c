@@ -89,11 +89,13 @@ int vlm_require(lua_State *L) {
 
     if(!fd) {
         sprintf(module_file, "%s%s.vlb", spath == NULL ? "":spath, module_name);
+        vlb = 1;
         fd = fopen(module_file, "r");
     }
     free(spath);
     //If file was not found, search in vlm modules folder
     if(!fd) {
+        vlb = 0;
         char *home = getenv("HOME");
         char vlm_dir[512] = {0};
         sprintf(vlm_dir, "%s/%s", home, VLM_DIR);
