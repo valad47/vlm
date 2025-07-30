@@ -192,7 +192,7 @@ int vlm_require_shared(lua_State *L) {
     }
 
     lua_getfield(GL, -1, luaL_checkstring(L, 1));
-    if(!lua_istable(GL, -1) || !lua_isfunction(GL, -1)) {
+    if(!lua_istable(GL, -1) && !lua_isfunction(GL, -1)) {
         lua_pop(GL, 1);
         vlm_require(L);
         lua_pushvalue(L, -1);
