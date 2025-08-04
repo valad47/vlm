@@ -31,6 +31,13 @@ void vlm_run(int argc, char **argv) {
     luaL_openlibs(L);
     vlm_stdinit(L);
 
+    lua_createtable(L, 0, argc - 3);
+    for(int i = 3; i <= argc; i++) {
+        lua_pushstring(L, argv[i]);
+        lua_rawseti(L, -2, i - 2);
+    }
+    lua_setglobal(L, "argv");
+
     //luaL_sandbox(L);
 
     lua_State *ML = loadstring(L, buffer, strlen(buffer), argv[2]);
