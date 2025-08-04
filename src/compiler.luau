@@ -7,7 +7,7 @@ if err then
 end
 
 local pkgname = build_file.pkgname
-local compiler = build_file.compiler or "clang"
+local compiler = build_file.compiler or "cc"
 
 mkdir("build")
 if build_file.c_files then
