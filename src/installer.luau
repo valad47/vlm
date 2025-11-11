@@ -1,6 +1,6 @@
 mkdir(".vlm-tmp")
 
-local exists, pkgremotes = pcall(require, "/etc/vlm-remotes")
+local exists, pkgremotes = pcall(require, if _WIN32 then `{home}/.vlm/vlm-remotes` else "/etc/vlm-remotes")
 if not exists then pkgremotes = {} end
 local function install_remote(v)
     if not pkgremotes[v] then
@@ -38,6 +38,28 @@ local _, err = pcall(function()
     local pkgdir = `{home}/.vlm/{pkgname}`
 
     --Deleting package folder in case of reinstall
+    if _WIN32 then
+
+    execute(
+        "rmdir",
+        "/s",
+        "/q",
+        pkgdir
+    )
+    execute(
+    	"mkdir",
+    	pkgdir
+    )
+    execute(
+    	"xcopy",
+    	".vlm-tmp/build",
+    	pkgdir,
+    	"/E",
+    	"/I",
+    	"Y"
+    )
+    else
+
     execute(
         "rm",
         "-rf",
@@ -55,6 +77,8 @@ local _, err = pcall(function()
         pkgdir
     )
 
+    end
+
     if pkginfo.dependency then
         for i,v in pkginfo.dependency do
             local exists = pcall(execute, "test", "-d", `{home}/.vlm/{v}`)
@@ -68,7 +92,11 @@ local _, err = pcall(function()
    end
 end)
 
-execute("rm", "-rf", ".vlm-tmp")
+if _WIN32 then
+	execute("rmdir", ".vlm-tmp")
+else
+	execute("rm", "-rf", ".vlm-tmp")
+end
 if err then
     error(err)
 end

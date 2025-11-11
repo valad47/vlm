@@ -7,11 +7,11 @@ if err then
 end
 
 local pkgname = build_file.pkgname
-local compiler = build_file.compiler or "cc"
+local compiler = build_file.compiler or getenv("C_COMPILER") or "cc"
 
 mkdir("build")
 if build_file.c_files then
-   local executable = "build/"..pkgname..".so";
+   local executable = "build/"..pkgname.. if _WIN32 then ".dll" else ".so";
    if build_file.c_args then
        table.move(build_file.c_args, 1, #build_file.c_args, #build_file.c_files + 1, build_file.c_files)
    end
@@ -20,7 +20,10 @@ if build_file.c_files then
        "-shared",
        "-o",
        executable,
-       "-I/usr/include/vlm",
+       if _WIN32 then
+		   `-I{home}/.vlm/include/vlm`
+       else
+           "-I/usr/include/vlm",
        "-ggdb",
        "-lvlmruntime",
        "-O2",
@@ -59,15 +62,9 @@ fwrite("build/pkginfo.luau", pkginfo)
 
 execute(
     "tar",
-    "-cf",
-    `{pkgname}-{build_file.pkgver}`,
+    "-czf",
+    `{pkgname}-{build_file.pkgver}.vlp`,
     "build"
-)
-execute(
-    "gzip",
-    "-fS",
-    ".vlp",
-    `{pkgname}-{build_file.pkgver}`
 )
 
 print(`Succesfully builded package [{pkgname}]`)

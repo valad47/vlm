@@ -3,27 +3,47 @@
 #include "lualib.h"
 #include "luacode.h"
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+
+#include <windows.h>
+#include <direct.h>
+
+#else
+
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <string.h>
+#include <unistd.h>
 #include <dlfcn.h>
+
+#endif
 
 void load_so(lua_State *L, int idx, const char* module_name) {
     char path[1024] = {0};
-    sprintf(path, "%s/%s/%s/%s.so",
+    sprintf(path, 
+#ifdef _WIN32
+	"%s\\%s\\%s\\%s.dll",
+#else
+    "%s/%s/%s/%s.so",
+#endif
                   getenv("HOME"),
                   VLM_DIR,
                   module_name,
                   module_name
     );
-    void *handle = dlopen(path, RTLD_LAZY);
+
+    void *handle = 
+#ifdef _WIN32
+	LoadLibrary(path);
+#else
+    dlopen(path, RTLD_LAZY);
+#endif
     if(!handle){
-        luaL_error(L, "Module failed to load %s.so: %s\n", module_name, dlerror());
+        luaL_error(L, "Module failed to load %s.so: %s\n", module_name, "PENIS");
         return;
     }
-
     const char *prefix = "";
 
     lua_getfield(L, idx, "SO_PREFIX");
@@ -41,7 +61,12 @@ void load_so(lua_State *L, int idx, const char* module_name) {
                 prefix,
                 lname
         );
-        lua_CFunction mfunc = dlsym(handle, fname);
+        lua_CFunction mfunc = 
+	#ifdef _WIN32
+		(lua_CFunction)GetProcAddress(handle, fname);
+	#else
+        dlsym(handle, fname);
+	#endif
         if(!mfunc) {lua_pop(L, 1); continue;}
         lua_pushcfunction(L, mfunc, fname);
         lua_setfield(L, idx, lname);
@@ -96,18 +121,31 @@ int vlm_require(lua_State *L) {
     //If file was not found, search in vlm modules folder
     if(!fd) {
         vlb = 0;
-        char *home = getenv("HOME");
+        char *home = getenv(
+		#ifdef _WIN32
+			"APPDATA"		
+		#else
+        	"HOME"
+        #endif
+        );
         char vlm_dir[512] = {0};
         sprintf(vlm_dir, "%s/%s", home, VLM_DIR);
 
+#ifdef _WIN32
+		if(GetFileAttributesA(vlm_dir) == INVALID_FILE_ATTRIBUTES) {
+			_mkdir(vlm_dir);
+            luaL_error(L, "Module not found: [%s]", module_name);
+		}
+#else
         struct stat st = {0};
         if(stat(vlm_dir, &st) == -1) {
             mkdir(vlm_dir, 00740);
             luaL_error(L, "Module not found: [%s]", module_name);
         }
+#endif
 
         //First we check for .vlb luau bytecode
-        sprintf(module_file, "%s/%s/%s.vlb", vlm_dir, module_name, module_name);
+        sprintf(module_file, "%s/%s/%s.vlb",	vlm_dir, module_name, module_name);
         fd = fopen(module_file, "r");
         if(fd) {
             vlb = 1;
@@ -219,6 +257,14 @@ int vlm_stdinit(lua_State *L) {
 
     lua_newtable(L);
     lua_setglobal(L, "__MODULES");
+
+#ifdef _WIN32
+	lua_pushboolean(L, true);
+	lua_setglobal(L, "_WIN32");
+#endif
+
+	lua_pushstring(L, VLM_VERSION);
+	lua_setglobal(L, "_VLM");
 
     return 0;
 }

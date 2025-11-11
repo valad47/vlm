@@ -1,10 +1,21 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
+#ifdef _WIN32
+
+#include <windows.h>
+#include <direct.h>
+
+#else
+
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+
+#endif
+
 
 #include "vlmstdlib.h"
 #include "runtime.h"
@@ -27,17 +38,37 @@ int vlm_write(lua_State *L) {
 int vlm_execute(lua_State *L) {
     int argc = lua_gettop(L);
 
-    const char *cmd = luaL_checkstring(L, 1);
     char **argv = malloc(sizeof(char**) * (argc + 1));
     memset(argv, 0, sizeof(char**) * (argc + 1));
     for(int i = 1; i <= argc; i++) {
         argv[i-1] = luaL_checkstring(L, i);
     }
+#ifdef _WIN32
+	STARTUPINFO siStartInfo = {};
+	PROCESS_INFORMATION piProcInfo = {};
+	BOOL bSuccess = CreateProcessA(NULL, *argv, NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo);
 
+	if(!bSuccess) {
+		luaL_error(L, "Could not execute command: %s", strerror(errno));
+	}
+	CloseHandle(piProcInfo.hThread);
+	DWORD result = WaitForSingleObject(piProcInfo.hProcess, INFINITE);
+
+	if(result == WAIT_FAILED) {
+		luaL_error(L, "Failed on waiting of proccess: %s\n", strerror(errno));
+	}
+
+	DWORD status;
+	GetExitCodeProcess(piProcInfo.hProcess, &status);
+	if(status != 0) {
+	    luaL_error(L, "Error during comand execution, exit status: %ld", status);
+	}
+	CloseHandle(piProcInfo.hProcess);
+#else
     pid_t pid = fork();
 
     if(pid == 0) {
-        if(execvp(cmd, argv) < 0)
+        if(execvp(argv[0], argv) < 0)
             luaL_error(L, "Could not execute command: %s\n", strerror(errno));
      }
 
@@ -51,7 +82,7 @@ int vlm_execute(lua_State *L) {
             luaL_error(L, "Error during comand execution, exit status: %d", status);
         }
     }
-
+#endif
     free(argv);
     return 0;
 }
@@ -59,9 +90,11 @@ int vlm_execute(lua_State *L) {
 int vlm_mkdir(lua_State *L) {
     const char *dir = luaL_checkstring(L, 1);
 
-    struct stat st = {0};
-    if(stat(dir, &st) == -1)
-        mkdir(dir, 00740);
+#ifdef _WIN32
+	_mkdir(dir);
+#else
+	mkdir(dir, 00740);
+#endif
 
     return 0;
 }
@@ -72,8 +105,19 @@ int vlm_pwd(lua_State *L) {
 }
 
 int vlm_cd(lua_State *L) {
+#ifdef _WIN32
+    _chdir(luaL_checkstring(L, 1));
+#else
     chdir(luaL_checkstring(L, 1));
+#endif
     return 0;
+}
+
+int vlm_getenv(lua_State *L) {
+	char *variable = getenv(luaL_checkstring(L, 1));
+	if(!variable) return 0;
+	lua_pushstring(L, variable);
+	return 1;
 }
 
 int vlm_luaucompile(lua_State *L) {
@@ -129,6 +173,7 @@ void builder(int argc, char **argv) {
         {"fwrite", vlm_write},
         {"pwd", vlm_pwd},
         {"cd", vlm_cd},
+        {"getenv", vlm_getenv},
 
         {NULL, NULL}
     };
@@ -167,6 +212,7 @@ void installer(int argc, char **argv) {
         {"fwrite", vlm_write},
         {"pwd", vlm_pwd},
         {"cd", vlm_cd},
+        {"getenv", vlm_getenv},
 
         {NULL, NULL}
     };
