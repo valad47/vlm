@@ -22,7 +22,7 @@
 
 void load_so(lua_State *L, int idx, const char* module_name) {
     char path[1024] = {0};
-    sprintf(path, 
+    sprintf(path,
 #ifdef _WIN32
 	"%s\\%s\\%s\\%s.dll",
 #else
@@ -34,7 +34,7 @@ void load_so(lua_State *L, int idx, const char* module_name) {
                   module_name
     );
 
-    void *handle = 
+    void *handle =
 #ifdef _WIN32
 	LoadLibrary(path);
 #else
@@ -46,7 +46,8 @@ void load_so(lua_State *L, int idx, const char* module_name) {
     }
     const char *prefix = "";
 
-    lua_getfield(L, idx, "SO_PREFIX");
+    lua_pushstring(L, "SO_PREFIX");
+    lua_rawget(L, idx);
     if(lua_isstring(L, -1)) {
         prefix = lua_tostring(L, -1);
     }
@@ -61,7 +62,7 @@ void load_so(lua_State *L, int idx, const char* module_name) {
                 prefix,
                 lname
         );
-        lua_CFunction mfunc = 
+        lua_CFunction mfunc =
 	#ifdef _WIN32
 		(lua_CFunction)GetProcAddress(handle, fname);
 	#else
@@ -123,7 +124,7 @@ int vlm_require(lua_State *L) {
         vlb = 0;
         char *home = getenv(
 		#ifdef _WIN32
-			"APPDATA"		
+			"APPDATA"
 		#else
         	"HOME"
         #endif
@@ -197,15 +198,18 @@ next:
     }
 
     if(lua_istable(ML, 1)) {
-    lua_getfield(ML, 1, "LOAD_SO");
-    if(lua_toboolean(ML, -1)) {
-        lua_pop(ML, 1);
-        lua_pushnil(ML);
-        lua_setfield(ML, 1, "LOAD_SO");
+        lua_pushstring(ML, "LOAD_SO");
+        lua_rawget(ML, 1);
+        if(lua_toboolean(ML, -1)) {
+            lua_pop(ML, 1);
+            lua_pushstring(ML, "LOAD_SO");
+            lua_pushnil(ML);
+            lua_rawset(ML, 1);
 
-        load_so(ML, 1, module_name);
-    } else
-        lua_pop(ML, 1);
+            load_so(ML, 1, module_name);
+        } else {
+            lua_pop(ML, 1);
+        }
     }
 
     lua_xmove(ML, L, 1);
