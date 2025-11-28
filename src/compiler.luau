@@ -30,7 +30,6 @@ if build_file.c_files then
        "-fPIC",
        table.unpack(build_file.c_files)
    )
-   execute("strip", executable)
 end
 for i, v in build_file.luau_files do
     local out = string.split(v, "/")
