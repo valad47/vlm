@@ -1,12 +1,12 @@
 # Maintainer: valad47 <valad.racz@gmail.com>
 pkgname=vlm
-pkgver=0.8
+pkgver=0.9
 pkgrel=1
 pkgdesc="Luau package manager and runtime"
 arch=(any)
 url="https://github.com/valad47/vlm"
 license=('unknown')
-depends=(gcc-libs glibc tar gzip git)
+depends=(gcc-libs glibc tar gzip git gcc)
 makedepends=(cmake git gcc)
 source=("git+https://github.com/valad47/vlm.git")
 sha256sums=('SKIP')
