@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30)
 
 project(vlm)
-set(VLM_VERSION "0.8")
+set(VLM_VERSION "0.9")
 
 include(FetchContent)
 
@@ -9,7 +9,7 @@ option(LUAU_BUILD_CLI "Build CLI" OFF)
 option(LUAU_BUILD_TESTS "Build tests" OFF)
 option(LUAU_EXTERN_C "Use extern C for all APIs" ON)
 
-set(LUAU_VERSION 0.699)
+set(LUAU_VERSION 0.703)
 FetchContent_Declare(
     Luau
     URL https://github.com/luau-lang/luau/archive/refs/tags/${LUAU_VERSION}.tar.gz
