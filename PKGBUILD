@@ -21,7 +21,7 @@ build() {
     	-DCMAKE_BUILD_TYPE=Release \
     	-DCMAKE_C_COMPILER=gcc
     
-    cmake --build build -j4 -t vlm vlmruntime
+    cmake --build build -j4 -t vlm
 
     mkdir -p include/vlm
 
