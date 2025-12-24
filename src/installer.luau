@@ -1,5 +1,8 @@
 mkdir(".vlm-tmp")
 
+local module_dir = getenv("VLM_MODULE_DIR") or `{home}/.vlm`
+if string.split(vlm, "")[1] ~= "/" then vlm = `{pwd()}/{vlm}` end
+
 local exists, pkgremotes = pcall(require, if _WIN32 then `{home}/.vlm/vlm-remotes` else "/etc/vlm-remotes")
 if not exists then pkgremotes = {} end
 local function install_remote(v)
@@ -8,9 +11,9 @@ local function install_remote(v)
     end
     execute("git", "clone", "-q", "--recursive", "--depth", "1", pkgremotes[v], `.vlm-tmp/{v}`)
     cd(`.vlm-tmp/{v}`)
-    execute("vlm", "build")
+    execute(vlm, "build")
     local deppkg = require(`build/pkginfo`)
-    execute("vlm", "install", `{deppkg.pkgname}-{deppkg.pkgver}.vlp`)
+    execute(vlm, "install", `{deppkg.pkgname}-{deppkg.pkgver}.vlp`)
     cd("../..")
     return true
 end
@@ -35,7 +38,7 @@ local _, err = pcall(function()
     )
     local pkginfo = require(`.vlm-tmp/build/pkginfo`)
     pkgname = pkginfo.pkgname
-    local pkgdir = `{home}/.vlm/{pkgname}`
+    local pkgdir = `{module_dir}/{pkgname}`
 
     --Deleting package folder in case of reinstall
     if _WIN32 then
@@ -81,7 +84,7 @@ local _, err = pcall(function()
 
     if pkginfo.dependency then
         for i,v in pkginfo.dependency do
-            local exists = pcall(execute, "test", "-d", `{home}/.vlm/{v}`)
+            local exists = pcall(execute, "test", "-d", `{module_dir}/{v}`)
             if exists then continue end
 
             if not install_remote(v) then

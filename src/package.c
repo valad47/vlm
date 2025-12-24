@@ -222,6 +222,9 @@ void installer(int argc, char **argv) {
     luaL_openlibs(L);
     vlm_stdinit(L);
 
+    lua_pushstring(L, argv[0]);
+    lua_setglobal(L, "vlm");
+
     lua_pushstring(L, argv[2]);
     lua_setglobal(L, "filename");
 
