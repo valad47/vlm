@@ -14,7 +14,7 @@ return {
     ["signal"]         = github("valad47", "signal"),
     ["color"]          = github("valad47", "vlm-color"),
     ["system"]         = github("valad47", "vlm-system"),
-    ["ipc"             = github("valad47", "vlm-ipc"),
+    ["ipc"]            = github("valad47", "vlm-ipc"),
     ["ipc-server"]     = github("valad47", "vlm-ipc-server"),
     ["ipc-client"]     = github("valad47", "vlm-ipc-client"),
     ["uinput"]         = github("valad47", "vlm-uinput"),
