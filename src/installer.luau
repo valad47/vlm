@@ -1,7 +1,7 @@
 mkdir(".vlm-tmp")
 
 local module_dir = getenv("VLM_MODULE_DIR") or `{home}/.vlm`
-if string.split(vlm, "")[1] ~= "/" then vlm = `{pwd()}/{vlm}` end
+if string.split(vlm, "")[1] == "." then vlm = `{pwd()}/{vlm}` end
 
 local exists, pkgremotes = pcall(require, if _WIN32 then `{home}/.vlm/vlm-remotes` else "/etc/vlm-remotes")
 if not exists then pkgremotes = {} end
