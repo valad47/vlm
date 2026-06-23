@@ -8,7 +8,7 @@ lua_State *loadstring(lua_State* L, const char *str, size_t size, const char *ch
     size_t bytecode_size;
 
     char *bytecode = luau_compile(str, size, &(struct lua_CompileOptions){
-        .optimizationLevel = 1,
+        .optimizationLevel = 2,
         .debugLevel = 1
     }, &bytecode_size);
 
