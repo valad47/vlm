@@ -21,6 +21,7 @@
 #endif
 
 char *MODULE_DIR = NULL;
+int MODULES_INDEX;
 
 void init_module_dir() {
     if((MODULE_DIR = getenv("VLM_MODULE_DIR"))) return;
@@ -232,13 +233,7 @@ int vlm_require_shared(lua_State *L) {
     lua_State* GL = lua_mainthread(L);
     const char *module_name = luaL_checkstring(L, 1);
 
-    lua_getglobal(GL, "__MODULES");
-    if(!lua_istable(GL, -1)) {
-        lua_pop(GL, 1);
-        lua_createtable(GL, 0, 1);
-        lua_pushvalue(GL, -1);
-        lua_setglobal(GL, "__MODULES");
-    }
+    lua_pushvalue(GL, MODULES_INDEX);
 
     lua_getfield(GL, -1, luaL_checkstring(L, 1));
     if(!lua_istable(GL, -1) && !lua_isfunction(GL, -1)) {
@@ -267,7 +262,7 @@ int vlm_stdinit(lua_State *L) {
     lua_pop(L, 1);
 
     lua_newtable(L);
-    lua_setglobal(L, "__MODULES");
+    MODULES_INDEX = lua_absindex(L, -1);
 
 #ifdef _WIN32
     lua_pushboolean(L, true);

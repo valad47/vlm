@@ -38,7 +38,7 @@ void vlm_run(int argc, char **argv) {
     }
     lua_setglobal(L, "argv");
 
-    //luaL_sandbox(L);
+    luaL_sandbox(L);
 
     lua_State *ML = loadstring(L, buffer, strlen(buffer), argv[2]);
 
